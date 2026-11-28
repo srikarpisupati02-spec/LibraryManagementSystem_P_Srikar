@@ -190,17 +190,22 @@ public class Library {
     public void reserveItem(String memberId, String itemId) {
 
         Member member = findMember(memberId);
-        findItem(itemId);
+        LibraryItem item = findItem(itemId);
+
+        if (!(item instanceof Borrowable)) {
+            throw new ItemNotAvailableException(
+                    itemId + " cannot be borrowed");
+        }
 
         if (!activeLoans.containsKey(itemId)) {
-            throw new IllegalArgumentException(
+            throw new ReservationNotAllowedException(
                     itemId + " is available");
         }
 
         for (Loan loan : member.getActiveLoans()) {
 
             if (loan.getItem().getId().equals(itemId)) {
-                throw new IllegalArgumentException(
+                throw new ReservationNotAllowedException(
                         memberId + " already has " + itemId);
             }
         }
@@ -213,7 +218,7 @@ public class Library {
         }
 
         if (queue.contains(member)) {
-            throw new IllegalArgumentException(
+            throw new ReservationNotAllowedException(
                     memberId + " already reserved " + itemId);
         }
 
